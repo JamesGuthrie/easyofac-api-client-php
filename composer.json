@@ -1,0 +1,29 @@
+{
+    "name": "jdubreville/easyofac-api-client-php",
+    "description": "A PHP API Client for Easy OFAC",
+    "authors": [
+        {
+            "name": "Jim Dubreville",
+            "email": "jdubreville@rentscreener.com"
+        },
+		{
+			"name": "Jonthan Ewen",
+			"email": "jewen@rentscreener.com"
+		}
+    ],
+    "require": {
+		"php": ">=5.3.1",
+		"guzzlehttp/guzzle": "~5.3",
+		"mmucklo/inflect": "0.3.*"
+    },
+	"autoload": {
+        "psr-4": { 
+            "EasyOfac\\Api\\": "src/"
+        }
+    },
+	"scripts" : {
+		"post-update-cmd": [
+			"composer dumpautoload -o"
+        ]
+	}
+}
