@@ -9,70 +9,64 @@ use GuzzleHttp\Psr7\Stream;
 
 class HttpRequest
 {
-	static $_guzzle = NULL;
+    static $_guzzle = NULL;
 
-	public static function send(Client $client, $endpoint, array $options = [])
-	{
-		$guzzle = self::$_guzzle;
+    public static function send(Client $client, $endpoint, array $options = [])
+    {
+        $guzzle = self::$_guzzle;
 
-		if(!isset($guzzle)) {
-			$guzzle = self::$_guzzle = new GuzzleHttpClient(['base_uri' => $client->getApiUrl()]);
-		}
-		
-		$options = array_merge(
-			[
-				'method'      => 'GET',
-				'body'  => null,
-				'query' => null
-			],
-			$options
-		);
+        if(!isset($guzzle)) {
+            $guzzle = self::$_guzzle = new GuzzleHttpClient(['base_uri' => $client->getApiUrl()]);
+        }
 
-		if (! empty($options['file'])) {
-			$stream = Stream::factory($options['file']);
-			$options['save_to'] = $stream;
-			unset($options['file']);
-		}
+        $options = array_merge([
+                'method' => 'GET',
+                'body' => null,
+                'query' => null
+            ],
+            $options
+        );
 
-		$headers = array_merge([
-			'User-Agent'   => $client->getUserAgent()
-		], $client->getHeaders());
+        if (! empty($options['file'])) {
+            $stream = Stream::factory($options['file']);
+            $options['save_to'] = $stream;
+            unset($options['file']);
+        }
 
-		if (isset($options["headers"])) {
-			$options["headers"] = array_merge($headers, $options["headers"]);
-		}
-		else
-		{
-			$options["headers"] = $headers;
-		}
-		
-		$method = $options['method'];
-		unset($options['method']);
+        $headers = array_merge([
+            'User-Agent'   => $client->getUserAgent()
+        ], $client->getHeaders());
+
+        if (isset($options["headers"])) {
+            $options["headers"] = array_merge($headers, $options["headers"]);
+        } else {
+            $options["headers"] = $headers;
+        }
+
+        $method = $options['method'];
+        unset($options['method']);
 
         try {
             $response = $guzzle->request($method, $endpoint, $options);
         } catch (RequestException $e) {
-			$response = $e->getResponse();
-			switch($response->getStatusCode()) 
-			{
-				case 400:
-					$data = json_decode($response->getBody()->getContents(), true);
-					throw new ApiException($data['message'], $data['messages']);
-					break;
-				case 401:
-					throw new ApiException("Could not be authenticated.  Please check your credentials!");
-					break;
-				case 404:
-					throw new ApiException("Requested resoruce could not be found.");
-					break;
-				default:
-					throw new ApiException("Unknown Error Occurred.  Please try again or contact technical support!");
-					break;
-			}
-			
-		}
-		
-		return json_decode($response->getBody()->getContents());
-	}
-	
+            $response = $e->getResponse();
+            switch($response->getStatusCode()) {
+                case 400:
+                    $data = json_decode($response->getBody()->getContents(), true);
+                    throw new ApiException($data['message'], $data['messages']);
+                    break;
+                case 401:
+                    throw new ApiException("Could not be authenticated.  Please check your credentials!");
+                    break;
+                case 404:
+                    throw new ApiException("Requested resoruce could not be found.");
+                    break;
+                default:
+                    throw new ApiException("Unknown Error Occurred.  Please try again or contact technical support!");
+                    break;
+            }
+        }
+
+        return json_decode($response->getBody()->getContents());
+    }
 }
