@@ -2,10 +2,10 @@
 
 namespace EasyOfac\Api;
 
+use EasyOfac\Api\Exceptions\ApiException;
 use GuzzleHttp\Client as GuzzleHttpClient;
 use GuzzleHttp\Exception\RequestException;
-
-use EasyOfac\Api\Exceptions\ApiException;
+use GuzzleHttp\Psr7\Stream;
 
 class HttpRequest
 {
@@ -36,7 +36,7 @@ class HttpRequest
 				
 		if(! empty($options['file']))
 		{
-			$stream = \GuzzleHttp\Stream\Stream::factory($options['file']);
+			$stream = Stream::factory($options['file']);
 			$options['save_to'] = $stream;
 			unset($options['file']);
 		}
