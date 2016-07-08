@@ -159,7 +159,7 @@ class Client
 			$endpoint,
 			array_merge($options, 
 				[ 
-					'body' => $data, 
+					'form_params' => $data,
 					'query' => $query,
 					'method' => 'POST' 
 				]

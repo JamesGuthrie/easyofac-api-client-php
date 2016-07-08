@@ -11,13 +11,12 @@ class HttpRequest
 {
 	static $_guzzle = NULL;
 
-	public static function send($client, $endpoint, $options = [])
+	public static function send(Client $client, $endpoint, array $options = [])
 	{
 		$guzzle = self::$_guzzle;
-		
-		if(!isset($guzzle))
-		{
-			$guzzle = self::$_guzzle = new GuzzleHttpClient();
+
+		if(!isset($guzzle)) {
+			$guzzle = self::$_guzzle = new GuzzleHttpClient(['base_uri' => $client->getApiUrl()]);
 		}
 		
 		$options = array_merge(
@@ -28,26 +27,18 @@ class HttpRequest
 			],
 			$options
 		);
-			
-	
-		$headers = array_merge([
-			'User-Agent'   => $client->getUserAgent()
-		], $client->getHeaders());
-				
-		if(! empty($options['file']))
-		{
+
+		if (! empty($options['file'])) {
 			$stream = Stream::factory($options['file']);
 			$options['save_to'] = $stream;
 			unset($options['file']);
 		}
-		
-		if (! empty($options['body'])) 
-		{
-			$options['body'] = $options['body'];
-		}
-		
-		if(isset($options["headers"]))
-		{
+
+		$headers = array_merge([
+			'User-Agent'   => $client->getUserAgent()
+		], $client->getHeaders());
+
+		if (isset($options["headers"])) {
 			$options["headers"] = array_merge($headers, $options["headers"]);
 		}
 		else
@@ -57,19 +48,10 @@ class HttpRequest
 		
 		$method = $options['method'];
 		unset($options['method']);
-		
-        $request = $guzzle->createRequest(
-			$method, 
-			$client->getApiUrl() . $endpoint,
-			$options
-		);
-		
-		try 
-		{
-            $response = $guzzle->send($request);
-        } 
-		catch (RequestException $e) 
-		{	
+
+        try {
+            $response = $guzzle->request($method, $endpoint, $options);
+        } catch (RequestException $e) {
 			$response = $e->getResponse();
 			switch($response->getStatusCode()) 
 			{
